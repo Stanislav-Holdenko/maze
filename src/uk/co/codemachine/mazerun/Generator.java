@@ -64,7 +64,7 @@ public class Generator {
 
 	private void setBorder(int i) {
 		Chunk chunk = maze.get(i);
-		// Randomly set the "|" (true - continue a row, false - setting "|")
+		
 		if((i % sizeX) == sizeX - 1){
 			
 				if (maze.get(i - 1).getSide() == DIR.RDOWN || maze.get(i - 1).getSide() == DIR.RIGHT) {
@@ -82,9 +82,11 @@ public class Generator {
 					chunk.setSide(DIR.RDOWN);
 //					makeExit(temp, i);
 				}
-			return;
+				
+				return;
 		}
-		if (rnd.nextBoolean()) { 
+		// Randomly set the "|"  
+		if (rnd.nextBoolean()) { 	//continue a row
 			if (maze.get(i - 1).getSide() == DIR.RDOWN || maze.get(i - 1).getSide() == DIR.RIGHT) {
 				chunk.setPack(maze.get(i - 1).getPack() + 1);
 				chunk.setSide(DIR.DOWN);
@@ -94,7 +96,10 @@ public class Generator {
 				chunk.setPack(maze.get(i - 1).getPack());
 				temp.add(chunk);
 			}
-		} else {
+		} else {					//setting "|"
+			if (maze.get(i - 1).getSide() == DIR.SINGLE){
+				chunk.setSide(DIR.RIGHT);
+			}
 			if (maze.get(i - 1).getSide() == DIR.RDOWN || maze.get(i - 1).getSide() == DIR.RIGHT) {
 				chunk.setSide(DIR.RDOWN);
 				chunk.setPack(maze.get(i - 1).getPack() + 1);
@@ -105,6 +110,7 @@ public class Generator {
 				makeExit(temp, i);
 			}
 		}
+		
 	}
 	
 	// A random exit from particular pack, at least one chunk from pack should
@@ -141,8 +147,8 @@ public class Generator {
 			}
 			setBorder(i);
 		}
-		 displayP();
-		 display();
+//		 displayP();
+//		 display();
 		// Filling pack numbers in empty chunks
 //		for (int i = (sizeX * line); i < (sizeX * (line + 1)); i++) {
 //			Chunk chunk = maze.get(i);
