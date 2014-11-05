@@ -28,18 +28,17 @@ public class Generator {
 				maze.get(i).setPack(1);
 			}
 		}
+	
 		maze.get(0).setSide(DIR.BLANK);
 		for (int i = 1; i < (sizeX); i++) {
 			maze.get(i).setPack(i);
 		}
 		// First line generation
-		for (int i = sizeX; i < sizeX + sizeX; i++) {
-			if ((i % sizeX) == 0) {
-				continue;
-			}
+		for (int i = sizeX+1; i < sizeX + sizeX; i++) {
+
 			// Setting up the last chunk on right side
 			if ((i % sizeX) == sizeX - 1) {
-				maze.get(i).setSide(DIR.RDOWN);
+//				maze.get(i).setSide(DIR.RDOWN);
 				if (maze.get(i - 1).getSide() == DIR.RDOWN || maze.get(i - 1).getSide() == DIR.RIGHT) {
 					maze.get(i).setPack(maze.get(i - 1).getPack() + 1);
 					makeExit(temp, i);
@@ -54,19 +53,38 @@ public class Generator {
 
 		}
 
-		int line = 1;
+		
+		for(int line = 1; line<sizeX-1; line++){
 		copyIntoNextLine(line);
 
-		generateNext(line + 1);
-//		displayP();
-//		display();
-		// line++;
+		generateNext(line + 1);}
+		displayP();
+		display();
 	}
 
 	private void setBorder(int i) {
 		Chunk chunk = maze.get(i);
-		if (rnd.nextBoolean()) { // Randomly set the "|" (true - continue a row,
-									// false - setting "|")
+		// Randomly set the "|" (true - continue a row, false - setting "|")
+		if((i % sizeX) == sizeX - 1){
+			
+				if (maze.get(i - 1).getSide() == DIR.RDOWN || maze.get(i - 1).getSide() == DIR.RIGHT) {
+					chunk.setPack(maze.get(i - 1).getPack() + 1);
+					chunk.setSide(DIR.RIGHT);
+					temp.add(chunk);
+				}
+				if (maze.get(i - 1).getSide() == DIR.DOWN){
+					chunk.setPack(maze.get(i - 1).getPack());
+					chunk.setSide(DIR.RDOWN);
+					makeExit(temp, i);
+				}
+				if (maze.get(i - 1).getSide() == DIR.EMPTY){
+					chunk.setPack(maze.get(i - 1).getPack());
+					chunk.setSide(DIR.RDOWN);
+//					makeExit(temp, i);
+				}
+			return;
+		}
+		if (rnd.nextBoolean()) { 
 			if (maze.get(i - 1).getSide() == DIR.RDOWN || maze.get(i - 1).getSide() == DIR.RIGHT) {
 				chunk.setPack(maze.get(i - 1).getPack() + 1);
 				chunk.setSide(DIR.DOWN);
@@ -87,54 +105,8 @@ public class Generator {
 				makeExit(temp, i);
 			}
 		}
-
 	}
-
-	private void copyIntoNextLine(int line) {
-		for (int i = (sizeX * line); i < (sizeX * (line + 1)); i++) {
-			maze.get(i + sizeX).setPack(maze.get(i).getPack());
-			maze.get(i + sizeX).setSide(maze.get(i).getSide());
-		}
-	}
-
-	private void generateNext(int line) {
-		// Remove "RIGHT" "RDOWM" and their pack numbers
-		for (int i = (sizeX * line); i < (sizeX * (line + 1)); i++) {
-			Chunk chunk = maze.get(i);
-		// Setting the last one	in a row
-			if (i == (sizeX * (line + 1) - 1)) {
-				chunk.setPack(1);
-				chunk.setSide(DIR.RIGHT);
-				continue;
-			}
-			if(chunk.getSide() == DIR.RDOWN || chunk.getSide() == DIR.RIGHT)
-				counter++;
-		// Making exit
-			if (chunk.getSide() == DIR.DOWN || chunk.getSide() == DIR.RDOWN
-					&& (i % sizeX) != 0) {
-				chunk.setPack(counter);
-				chunk.setSide(DIR.EMPTY);
-			}
-			
-		}
-
-		// Filling pack numbers in empty chunks
-		for (int i = (sizeX * line); i < (sizeX * (line + 1)); i++) {
-			Chunk chunk = maze.get(i);
-			if (chunk.getPack() > 0)
-				continue;
-		//	chunk.setPack(i);
-		// Cheking if the next chunk is exit in previous row
-			if (chunk.getPack() == maze.get(i + 1).getPack()) {
-//				chunk.setSide(DIR.RDOWN);
-				makeExit(temp, i);
-			}
-			setBorder(i);
-		}
-		 displayP();
-		 display();
-	}
-
+	
 	// A random exit from particular pack, at least one chunk from pack should
 	// have exit
 	private void makeExit(List<Chunk> temp, int i) {
@@ -147,6 +119,51 @@ public class Generator {
 			temp.clear();
 		} else {
 			maze.get(i).setSide(DIR.RIGHT);
+		}
+	}
+
+
+	private void generateNext(int line) {
+		// Remove "RIGHT" "RDOWM" and their pack numbers while keeping exit pack numbers 
+		for (int i = (sizeX * line)+1; i < (sizeX * (line + 1)); i++) {
+			Chunk chunk = maze.get(i);
+		// Setting the last one	in a row
+			if (i == (sizeX * (line + 1) - 1)) {
+				setBorder(i);
+			}
+			if(chunk.getSide() == DIR.RDOWN || chunk.getSide() == DIR.RIGHT)
+				counter++;
+		// Making exit
+			if (chunk.getSide() == DIR.DOWN || chunk.getSide() == DIR.RDOWN
+					&& (i % sizeX) != 0) {
+				chunk.setPack(counter);
+				chunk.setSide(DIR.EMPTY);
+			}
+			setBorder(i);
+		}
+		 displayP();
+		 display();
+		// Filling pack numbers in empty chunks
+//		for (int i = (sizeX * line); i < (sizeX * (line + 1)); i++) {
+//			Chunk chunk = maze.get(i);
+//			if (chunk.getPack() > 0)
+//				continue;
+//		//	chunk.setPack(i);
+//		// Cheking if the next chunk is exit in previous row
+//			if (chunk.getPack() == maze.get(i + 1).getPack()) {
+////				chunk.setSide(DIR.RDOWN);
+//				makeExit(temp, i);
+//			}
+//			
+//		}
+		
+	}
+
+
+	private void copyIntoNextLine(int line) {
+		for (int i = (sizeX * line); i < (sizeX * (line + 1)); i++) {
+			maze.get(i + sizeX).setPack(maze.get(i).getPack());
+			maze.get(i + sizeX).setSide(maze.get(i).getSide());
 		}
 	}
 
