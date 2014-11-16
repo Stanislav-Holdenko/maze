@@ -17,7 +17,6 @@ public class Generator {
 	}
 
 	private void generate(int sizeX, int sizeY) {
-
 		// GENERATION FRAME
 		for (int i = 0; i < (sizeX * sizeY); i++) {
 			maze.add(new Chunk());
